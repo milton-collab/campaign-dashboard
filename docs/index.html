@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GrowthTrigger Campaign Dashboard</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface-hover: #22252f;
+    --border: #2a2d3a;
+    --text: #e4e4e7;
+    --text-muted: #9ca3af;
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 4px;
+  }
+  .header .subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+  }
+  .header .day-tracker {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 6px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+  }
+  .header .day-tracker strong { color: var(--text); }
+
+  /* Summary bar */
+  .summary {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+  }
+  .summary-stat {
+    text-align: center;
+  }
+  .summary-stat .num {
+    font-size: 2rem;
+    font-weight: 700;
+  }
+  .summary-stat .label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Client cards grid */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 40px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: background 0.15s;
+  }
+  .card:hover { background: var(--surface-hover); }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .client-name {
+    font-weight: 600;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .health-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .health-green  { background: rgba(34,197,94,0.15); color: var(--green); }
+  .health-yellow { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .health-red    { background: rgba(239,68,68,0.15); color: var(--red); }
+
+  .big-number {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .big-number span { color: var(--text-muted); font-weight: 400; font-size: 1.4rem; }
+
+  /* Progress bar */
+  .progress-bar {
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    margin-bottom: 8px;
+  }
+  .progress-done {
+    height: 100%;
+    border-radius: 4px 0 0 4px;
+    transition: width 0.3s;
+  }
+  .progress-wip {
+    height: 100%;
+    transition: width 0.3s;
+    opacity: 0.4;
+  }
+
+  .card-stats {
+    display: flex;
+    gap: 16px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .card-stats strong { color: var(--text); }
+
+  /* Detail table */
+  .detail-section {
+    margin-bottom: 40px;
+  }
+  .detail-section h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .detail-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .detail-table th {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .detail-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-table tr:hover td { background: var(--surface-hover); }
+  .pct-cell { font-weight: 600; }
+  .health-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  /* Pipeline bars */
+  .pipeline-section {
+    margin-bottom: 40px;
+  }
+  .pipeline-section h2 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .pipeline-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+  .pipeline-label {
+    width: 140px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .pipeline-bar {
+    flex: 1;
+    height: 28px;
+    background: var(--bg);
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+  }
+  .pipeline-segment {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: white;
+    min-width: 24px;
+    transition: width 0.3s;
+  }
+  .pipeline-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Mobile */
+  @media (max-width: 640px) {
+    body { padding: 16px; }
+    .cards { grid-template-columns: 1fr; }
+    .summary { gap: 20px; }
+    .summary-stat .num { font-size: 1.5rem; }
+    .pipeline-label { width: 100px; font-size: 0.75rem; }
+    .detail-table { font-size: 0.75rem; }
+    .detail-table th, .detail-table td { padding: 8px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>GrowthTrigger Campaign Dashboard</h1>
+  <p class="subtitle">March 2026</p>
+  <div class="day-tracker">Day <strong>16</strong> of 31 &middot; Updated Mar 16, 2026 at 02:13 PM COT</div>
+</div>
+
+<div class="summary">
+  
+    <div class="summary-stat"><div class="num">17</div><div class="label">Scheduled</div></div>
+    <div class="summary-stat"><div class="num">11</div><div class="label">In Progress</div></div>
+    <div class="summary-stat"><div class="num">38</div><div class="label">Remaining</div></div>
+    <div class="summary-stat"><div class="num">66</div><div class="label">Total</div></div>
+    <div class="summary-stat"><div class="num">26%</div><div class="label">Complete</div></div>
+    
+</div>
+
+<div class="cards">
+  
+    <div class="card">
+      <div class="card-header">
+        <div class="client-name">
+          <span class="color-dot" style="background:#6366F1"></span>
+          Effecty
+        </div>
+        <span class="health-badge health-yellow">At Risk</span>
+      </div>
+      <div class="big-number">10 <span>/ 33</span></div>
+      <div class="progress-bar">
+        <div class="progress-done" style="width:30%;background:#6366F1"></div>
+        <div class="progress-wip" style="width:18%;background:#6366F1"></div>
+      </div>
+      <div class="card-stats">
+        <div><strong>10</strong> done</div>
+        <div><strong>6</strong> in progress</div>
+        <div><strong>17</strong> remaining</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="client-name">
+          <span class="color-dot" style="background:#EC4899"></span>
+          Freya
+        </div>
+        <span class="health-badge health-yellow">At Risk</span>
+      </div>
+      <div class="big-number">3 <span>/ 9</span></div>
+      <div class="progress-bar">
+        <div class="progress-done" style="width:33%;background:#EC4899"></div>
+        <div class="progress-wip" style="width:0%;background:#EC4899"></div>
+      </div>
+      <div class="card-stats">
+        <div><strong>3</strong> done</div>
+        <div><strong>0</strong> in progress</div>
+        <div><strong>6</strong> remaining</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="client-name">
+          <span class="color-dot" style="background:#F59E0B"></span>
+          Ammu Beauty
+        </div>
+        <span class="health-badge health-green">On Track</span>
+      </div>
+      <div class="big-number">4 <span>/ 11</span></div>
+      <div class="progress-bar">
+        <div class="progress-done" style="width:36%;background:#F59E0B"></div>
+        <div class="progress-wip" style="width:9%;background:#F59E0B"></div>
+      </div>
+      <div class="card-stats">
+        <div><strong>4</strong> done</div>
+        <div><strong>1</strong> in progress</div>
+        <div><strong>6</strong> remaining</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="client-name">
+          <span class="color-dot" style="background:#10B981"></span>
+          Online CE Credits
+        </div>
+        <span class="health-badge health-red">Behind</span>
+      </div>
+      <div class="big-number">0 <span>/ 12</span></div>
+      <div class="progress-bar">
+        <div class="progress-done" style="width:0%;background:#10B981"></div>
+        <div class="progress-wip" style="width:25%;background:#10B981"></div>
+      </div>
+      <div class="card-stats">
+        <div><strong>0</strong> done</div>
+        <div><strong>3</strong> in progress</div>
+        <div><strong>9</strong> remaining</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="client-name">
+          <span class="color-dot" style="background:#8B5CF6"></span>
+          IVY RX
+        </div>
+        <span class="health-badge health-green">On Track</span>
+      </div>
+      <div class="big-number">0 <span>/ 0</span></div>
+      <div class="progress-bar">
+        <div class="progress-done" style="width:0%;background:#8B5CF6"></div>
+        <div class="progress-wip" style="width:0%;background:#8B5CF6"></div>
+      </div>
+      <div class="card-stats">
+        <div><strong>0</strong> done</div>
+        <div><strong>0</strong> in progress</div>
+        <div><strong>0</strong> remaining</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div class="client-name">
+          <span class="color-dot" style="background:#EF4444"></span>
+          Curekey
+        </div>
+        <span class="health-badge health-red">Behind</span>
+      </div>
+      <div class="big-number">0 <span>/ 1</span></div>
+      <div class="progress-bar">
+        <div class="progress-done" style="width:0%;background:#EF4444"></div>
+        <div class="progress-wip" style="width:100%;background:#EF4444"></div>
+      </div>
+      <div class="card-stats">
+        <div><strong>0</strong> done</div>
+        <div><strong>1</strong> in progress</div>
+        <div><strong>0</strong> remaining</div>
+      </div>
+    </div>
+</div>
+
+<div class="detail-section">
+  <h2>Detailed Breakdown</h2>
+  <table class="detail-table">
+    <thead>
+      <tr>
+        <th>Client</th>
+        <th>Done</th>
+        <th>In Progress</th>
+        <th>Remaining</th>
+        <th>Total</th>
+        <th>%</th>
+        <th>Health</th>
+      </tr>
+    </thead>
+    <tbody>
+      
+      <tr>
+        <td><span class="color-dot" style="background:#6366F1"></span> Effecty</td>
+        <td>10</td>
+        <td>6</td>
+        <td>17</td>
+        <td>33</td>
+        <td class="pct-cell">30%</td>
+        <td><span class="health-dot" style="background:var(--yellow)"></span></td>
+      </tr>
+      <tr>
+        <td><span class="color-dot" style="background:#EC4899"></span> Freya</td>
+        <td>3</td>
+        <td>0</td>
+        <td>6</td>
+        <td>9</td>
+        <td class="pct-cell">33%</td>
+        <td><span class="health-dot" style="background:var(--yellow)"></span></td>
+      </tr>
+      <tr>
+        <td><span class="color-dot" style="background:#F59E0B"></span> Ammu Beauty</td>
+        <td>4</td>
+        <td>1</td>
+        <td>6</td>
+        <td>11</td>
+        <td class="pct-cell">36%</td>
+        <td><span class="health-dot" style="background:var(--green)"></span></td>
+      </tr>
+      <tr>
+        <td><span class="color-dot" style="background:#10B981"></span> Online CE Credits</td>
+        <td>0</td>
+        <td>3</td>
+        <td>9</td>
+        <td>12</td>
+        <td class="pct-cell">0%</td>
+        <td><span class="health-dot" style="background:var(--red)"></span></td>
+      </tr>
+      <tr>
+        <td><span class="color-dot" style="background:#8B5CF6"></span> IVY RX</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td>0</td>
+        <td class="pct-cell">0%</td>
+        <td><span class="health-dot" style="background:var(--green)"></span></td>
+      </tr>
+      <tr>
+        <td><span class="color-dot" style="background:#EF4444"></span> Curekey</td>
+        <td>0</td>
+        <td>1</td>
+        <td>0</td>
+        <td>1</td>
+        <td class="pct-cell">0%</td>
+        <td><span class="health-dot" style="background:var(--red)"></span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="pipeline-section">
+  <h2>Status Pipeline</h2>
+  
+    <div class="pipeline-row">
+      <div class="pipeline-label"><span class="color-dot" style="background:#6366F1"></span> Effecty</div>
+      <div class="pipeline-bar"><div class="pipeline-segment" style="width:6.0606060606060606%;background:#6b7280" title="to do: 2">2</div><div class="pipeline-segment" style="width:18.181818181818183%;background:#3b82f6" title="in implementation: 6">6</div><div class="pipeline-segment" style="width:30.303030303030305%;background:#22c55e" title="scheduled: 10">10</div><div class="pipeline-segment" style="width:42.42424242424242%;background:#6b7280" title="internal review: 14">14</div><div class="pipeline-segment" style="width:3.0303030303030303%;background:#6b7280" title="reviewed by client: 1"></div></div>
+    </div>
+    <div class="pipeline-row">
+      <div class="pipeline-label"><span class="color-dot" style="background:#EC4899"></span> Freya</div>
+      <div class="pipeline-bar"><div class="pipeline-segment" style="width:33.33333333333333%;background:#22c55e" title="scheduled: 3">3</div><div class="pipeline-segment" style="width:11.11111111111111%;background:#10b981" title="complete: 1">1</div><div class="pipeline-segment" style="width:55.55555555555556%;background:#6b7280" title="in client review: 5">5</div></div>
+    </div>
+    <div class="pipeline-row">
+      <div class="pipeline-label"><span class="color-dot" style="background:#F59E0B"></span> Ammu Beauty</div>
+      <div class="pipeline-bar"><div class="pipeline-segment" style="width:9.090909090909092%;background:#6b7280" title="to do: 1">1</div><div class="pipeline-segment" style="width:27.27272727272727%;background:#a855f7" title="in design: 3">3</div><div class="pipeline-segment" style="width:9.090909090909092%;background:#06b6d4" title="in final check: 1">1</div><div class="pipeline-segment" style="width:36.36363636363637%;background:#22c55e" title="scheduled: 4">4</div><div class="pipeline-segment" style="width:18.181818181818183%;background:#6b7280" title="in client review: 2">2</div></div>
+    </div>
+    <div class="pipeline-row">
+      <div class="pipeline-label"><span class="color-dot" style="background:#10B981"></span> Online CE Credits</div>
+      <div class="pipeline-bar"><div class="pipeline-segment" style="width:25.0%;background:#3b82f6" title="in implementation: 3">3</div><div class="pipeline-segment" style="width:33.33333333333333%;background:#10b981" title="complete: 4">4</div><div class="pipeline-segment" style="width:41.66666666666667%;background:#6b7280" title="in client review: 5">5</div></div>
+    </div>
+    <div class="pipeline-row">
+      <div class="pipeline-label"><span class="color-dot" style="background:#EF4444"></span> Curekey</div>
+      <div class="pipeline-bar"><div class="pipeline-segment" style="width:100.0%;background:#06b6d4" title="in final check: 1">1</div></div>
+    </div>
+  <div class="pipeline-legend">
+    <div class="legend-item"><span class="legend-swatch" style="background:#6b7280"></span>To Do</div><div class="legend-item"><span class="legend-swatch" style="background:#a855f7"></span>In Design</div><div class="legend-item"><span class="legend-swatch" style="background:#3b82f6"></span>In Implementation</div><div class="legend-item"><span class="legend-swatch" style="background:#06b6d4"></span>In Final Check</div><div class="legend-item"><span class="legend-swatch" style="background:#22c55e"></span>Scheduled</div><div class="legend-item"><span class="legend-swatch" style="background:#10b981"></span>Complete</div><div class="legend-item"><span class="legend-swatch" style="background:#6b7280"></span>In Client Review</div><div class="legend-item"><span class="legend-swatch" style="background:#6b7280"></span>Internal Review</div><div class="legend-item"><span class="legend-swatch" style="background:#6b7280"></span>Reviewed By Client</div>
+  </div>
+</div>
+
+<div class="footer">
+  Data source: ClickUp API &middot; Updated daily at 11 PM COT
+</div>
+
+</body>
+</html>

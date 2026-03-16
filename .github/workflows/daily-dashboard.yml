@@ -1,0 +1,40 @@
+name: Daily Campaign Dashboard
+
+on:
+  schedule:
+    # Every day at 4:00 AM UTC = 11:00 PM Colombian Time (COT, UTC-5)
+    - cron: '0 4 * * *'
+  workflow_dispatch:
+    # Manual trigger for testing
+
+permissions:
+  contents: write
+
+jobs:
+  update-dashboard:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Generate dashboard
+        run: python dashboard.py
+        env:
+          CLICKUP_API_TOKEN: ${{ secrets.CLICKUP_API_TOKEN }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html
+          git diff --staged --quiet || git commit -m "Update dashboard $(date -u +'%Y-%m-%d %H:%M UTC')"
+          git push

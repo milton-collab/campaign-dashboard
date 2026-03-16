@@ -1,0 +1,14 @@
+{
+  "workspace_id": "9012119561",
+  "clients": {
+    "Effecty":           { "list_id": "901207283711", "color": "#6366F1" },
+    "Freya":             { "list_id": "901211503358", "color": "#EC4899" },
+    "Ammu Beauty":       { "list_id": "901209628209", "color": "#F59E0B" },
+    "Online CE Credits": { "list_id": "901212974916", "color": "#10B981" },
+    "IVY RX":            { "list_id": "901203185301", "color": "#8B5CF6" },
+    "Curekey":           { "list_id": "901215037672", "color": "#EF4444" }
+  },
+  "done_statuses": ["scheduled"],
+  "in_progress_statuses": ["in implementation", "in design qa", "in final check"],
+  "slack_channel": null
+}
