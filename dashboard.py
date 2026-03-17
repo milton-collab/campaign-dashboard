@@ -141,25 +141,37 @@ def split_by_month_convention(tasks):
 # Task processing
 # ---------------------------------------------------------------------------
 
+def _get_custom_field(task, field_name):
+    """Get a custom field value by name from a ClickUp task."""
+    for cf in task.get("custom_fields", []):
+        if cf["name"].lower() == field_name.lower() and cf.get("value"):
+            return cf["value"]
+    return None
+
+
 def process_tasks(raw_tasks, now_cot):
     """Extract per-task data from raw ClickUp task objects."""
     processed = []
     for t in raw_tasks:
         assignees = t.get("assignees") or []
         assignee = assignees[0].get("username", "Unassigned") if assignees else "Unassigned"
+
+        # Use Send Date custom field (primary), fall back to due_date
+        send_ms = _get_custom_field(t, "send date")
         due_ms = t.get("due_date")
-        due_dt = datetime.fromtimestamp(int(due_ms) / 1000, tz=COT) if due_ms else None
-        days_until = (due_dt.date() - now_cot.date()).days if due_dt else None
+        date_ms = send_ms or due_ms
+        date_dt = datetime.fromtimestamp(int(date_ms) / 1000, tz=COT) if date_ms else None
+        days_until = (date_dt.date() - now_cot.date()).days if date_dt else None
 
         processed.append({
             "name": t.get("name", "Untitled"),
             "status": t.get("status", {}).get("status", "unknown").lower(),
             "assignee": assignee,
-            "due_date": due_dt,
-            "days_until_due": days_until,
+            "send_date": date_dt,
+            "days_until_send": days_until,
         })
-    # Sort: overdue first, then by due date ascending, no-date last
-    processed.sort(key=lambda x: (x["days_until_due"] is None, x["days_until_due"] or 999))
+    # Sort by send date ascending, no-date last
+    processed.sort(key=lambda x: (x["days_until_send"] is None, x["days_until_send"] or 999))
     return processed
 
 
@@ -208,26 +220,24 @@ def compute_health(done, total, day_of_month, days_in_month):
 
 def build_fire_alerts(client_data, now_cot):
     """Find campaigns with send date this week that aren't done. Max 10."""
-    # Monday of current week
-    weekday = now_cot.weekday()  # 0=Mon
+    weekday = now_cot.weekday()
     week_start = (now_cot - timedelta(days=weekday)).date()
     week_end = week_start + timedelta(days=6)
 
     alerts = []
     for client_name, data in client_data.items():
         for task in data.get("tasks", []):
-            due = task.get("due_date")
-            if due is None or task["status"] in SAFE_STATUSES:
+            sd = task.get("send_date")
+            if sd is None or task["status"] in SAFE_STATUSES:
                 continue
-            if week_start <= due.date() <= week_end:
-                days = task["days_until_due"]
+            if week_start <= sd.date() <= week_end:
                 alerts.append({
                     "client": client_name,
                     "name": task["name"],
                     "status": task["status"],
                     "assignee": task["assignee"],
-                    "days": days,
-                    "send_date": due.strftime("%a %b %d"),
+                    "days": task["days_until_send"],
+                    "send_date": sd.strftime("%a %b %d"),
                 })
     alerts.sort(key=lambda a: (a["days"] is None, a["days"] or 0))
     return alerts[:10]
@@ -386,15 +396,18 @@ def generate_html(client_data, now_cot, done_statuses):
             t_status = t["status"]
             t_color = STATUS_COLORS.get(t_status, "rgba(255,255,255,0.08)")
             t_am = t["assignee"]
-            d = t["days_until_due"]
-            if d is None:
+            sd = t.get("send_date")
+            d = t.get("days_until_send")
+            if sd is None:
                 due_label, due_cls = "No date", ""
-            elif d < 0:
-                due_label, due_cls = f"{abs(d)}d late", "drill-overdue"
-            elif d <= 5:
-                due_label, due_cls = f"{d}d", "drill-urgent"
             else:
-                due_label, due_cls = f"{d}d", ""
+                due_label = sd.strftime("%b %d")
+                if d is not None and d < 0:
+                    due_cls = "drill-overdue"
+                elif d is not None and d <= 5:
+                    due_cls = "drill-urgent"
+                else:
+                    due_cls = ""
             task_rows += f'<div class="drill-row"><span class="drill-name">{t_name}</span><span class="drill-pill" style="background:{t_color}">{t_status}</span><span class="drill-am">@{t_am}</span><span class="drill-due {due_cls}">{due_label}</span></div>\n'
 
         drill_html = f"""<details class="drill">
