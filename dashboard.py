@@ -207,12 +207,12 @@ def compute_health(done, total, day_of_month, days_in_month):
 # ---------------------------------------------------------------------------
 
 def build_fire_alerts(client_data):
-    """Find campaigns due within FIRE_ALERT_DAYS that aren't near-done."""
+    """Find campaigns due TODAY that aren't near-done. Max 10."""
     alerts = []
     for client_name, data in client_data.items():
         for task in data.get("tasks", []):
             days = task.get("days_until_due")
-            if days is not None and days <= FIRE_ALERT_DAYS and task["status"] not in SAFE_STATUSES:
+            if days is not None and days == 0 and task["status"] not in SAFE_STATUSES:
                 alerts.append({
                     "client": client_name,
                     "name": task["name"],
@@ -220,8 +220,7 @@ def build_fire_alerts(client_data):
                     "assignee": task["assignee"],
                     "days": days,
                 })
-    alerts.sort(key=lambda a: a["days"])
-    return alerts
+    return alerts[:10]
 
 
 def build_am_scoreboard(client_data, done_statuses):
