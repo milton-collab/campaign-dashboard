@@ -481,14 +481,19 @@
   .am-bar-fill { height: 100%; background: var(--blue); border-radius: 3px; animation: growWidth 1.2s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.8s; width: 0; }
   .am-pct { font-family: 'Satoshi','Inter',sans-serif; font-weight: 900; font-size: 1.5rem; color: var(--blue); }
 
-  /* ===== PROJECTED COMPLETION ===== */
-  .c-proj {
-    font-size: 0.8rem; color: rgba(var(--w),0.3);
+  /* ===== PIPELINE TAGS (inline in card) ===== */
+  .pipe-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
     margin-top: 14px; padding-top: 14px;
     border-top: 1px solid rgba(var(--w),0.04);
   }
-  .proj-late { color: var(--white); font-weight: 600; }
-  .proj-ok { color: rgba(var(--blue-rgb),0.7); }
+  .pipe-tag {
+    font-size: 0.7rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 8px;
+    color: var(--white);
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
 
   /* ===== DRILL-DOWN ===== */
   .drill { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(var(--w),0.04); }
@@ -607,12 +612,12 @@
       </div>
     </div>
 
-    <div class="day-pill">Day <strong>16</strong> of 31 &middot; Updated Mar 16, 2026 at 09:54 PM COT</div>
+    <div class="day-pill">Day <strong>16</strong> of 31 &middot; Updated Mar 16, 2026 at 10:03 PM COT</div>
   </div>
 
   
   <div class="fire-section anim" style="animation-delay:0.12s">
-    <div class="sec-title"><span class="fire-icon">&#9888;</span> Urgent — Due Within 5 Days <span class="ln"></span></div>
+    <div class="sec-title"><span class="fire-icon">&#9888;</span> Urgent — Due Today <span class="ln"></span></div>
     <div class="fire-box"><div class="fire-row">
         <span class="fire-client">Effecty</span>
         <span class="fire-name">C1/M14: &quot;The NEWYOU26 Sale Has Ended. Here's What Didn't.&quot;</span>
@@ -709,60 +714,6 @@
         <span class="fire-pill" style="background:rgba(255,255,255,0.1)">in client review</span>
         <span class="fire-am">@Geoffrey Florante</span>
         <span class="fire-days fire-overdue">Due today</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Ammu Beauty</span>
-        <span class="fire-name">C11M8 — EID Sale Last Call: Ends at Midnight</span>
-        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">1d left</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Ammu Beauty</span>
-        <span class="fire-name">C10M8 —  Sale 30% Off: 48-Hour Sale Launch</span>
-        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">1d left</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Ammu Beauty</span>
-        <span class="fire-name">C9M8 — Social Proof Spotlight</span>
-        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">1d left</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Effecty</span>
-        <span class="fire-name">C19/M14 - 6 Health Markers That Improve on GLP-1 [LONG FORM]</span>
-        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">reviewed by client</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">3d left</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Ammu Beauty</span>
-        <span class="fire-name">GT | Browse Abandonment Flow</span>
-        <span class="fire-pill" style="background:rgba(255,255,255,0.15)">in copy</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">3d left</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Ammu Beauty</span>
-        <span class="fire-name">GT | Checkout Abandonment Flow</span>
-        <span class="fire-pill" style="background:rgba(255,255,255,0.15)">in copy</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">3d left</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Ammu Beauty</span>
-        <span class="fire-name">GT | Abandoned Cart Flow</span>
-        <span class="fire-pill" style="background:rgba(255,255,255,0.15)">in copy</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">3d left</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Effecty</span>
-        <span class="fire-name">C14/M14 - The Real Math on GLP-1 [SHORT FORM]</span>
-        <span class="fire-pill" style="background:rgba(0,47,255,0.50)">in implementation</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">4d left</span>
-      </div><div class="fire-row">
-        <span class="fire-client">Effecty</span>
-        <span class="fire-name">C15/M14 - Winback: Churned GLP-1 30-90 Days [PLAIN TEXT]</span>
-        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">internal review</span>
-        <span class="fire-am">@Geoffrey Florante</span>
-        <span class="fire-days fire-soon">4d left</span>
       </div></div>
   </div>
 
@@ -776,50 +727,6 @@
   </div>
 
   
-  <div class="am-section anim" style="animation-delay:0.2s">
-    <div class="sec-title">Account Managers <span class="ln"></span></div>
-    <div class="am-grid"><div class="am-card">
-        <div class="am-name">@Grace Wachira</div>
-        <div class="am-nums"><strong>1</strong> <span>/ 1</span></div>
-        <div class="am-bar-track"><div class="am-bar-fill" style="width:100%"></div></div>
-        <div class="am-pct" data-count="100">100%</div>
-      </div><div class="am-card">
-        <div class="am-name">@Geoffrey Florante</div>
-        <div class="am-nums"><strong>14</strong> <span>/ 44</span></div>
-        <div class="am-bar-track"><div class="am-bar-fill" style="width:32%"></div></div>
-        <div class="am-pct" data-count="32">32%</div>
-      </div><div class="am-card">
-        <div class="am-name">@Jam</div>
-        <div class="am-nums"><strong>1</strong> <span>/ 12</span></div>
-        <div class="am-bar-track"><div class="am-bar-fill" style="width:8%"></div></div>
-        <div class="am-pct" data-count="8">8%</div>
-      </div><div class="am-card">
-        <div class="am-name">@Unassigned</div>
-        <div class="am-nums"><strong>0</strong> <span>/ 2</span></div>
-        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
-        <div class="am-pct" data-count="0">0%</div>
-      </div><div class="am-card">
-        <div class="am-name">@Gabriela Vicini</div>
-        <div class="am-nums"><strong>0</strong> <span>/ 1</span></div>
-        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
-        <div class="am-pct" data-count="0">0%</div>
-      </div><div class="am-card">
-        <div class="am-name">@Arqum Khan</div>
-        <div class="am-nums"><strong>0</strong> <span>/ 9</span></div>
-        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
-        <div class="am-pct" data-count="0">0%</div>
-      </div><div class="am-card">
-        <div class="am-name">@Luke Marshall</div>
-        <div class="am-nums"><strong>0</strong> <span>/ 2</span></div>
-        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
-        <div class="am-pct" data-count="0">0%</div>
-      </div><div class="am-card">
-        <div class="am-name">@Joshua Macalalad</div>
-        <div class="am-nums"><strong>0</strong> <span>/ 1</span></div>
-        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
-        <div class="am-pct" data-count="0">0%</div>
-      </div></div>
-  </div>
 
   <div class="cards">
     
@@ -835,7 +742,7 @@
         <div><strong>7</strong> in progress</div>
         <div><strong>17</strong> remaining</div>
       </div>
-      <div class="c-proj proj-late">Apr 23 (23d late)</div>
+      <div class="pipe-tags"><span class="pipe-tag" style="background:rgba(255,255,255,0.08)">2 to do</span><span class="pipe-tag" style="background:rgba(0,47,255,0.50)">1 in implementation</span><span class="pipe-tag" style="background:rgba(0,47,255,0.62)">6 in final check</span><span class="pipe-tag" style="background:#002fff">10 scheduled</span><span class="pipe-tag" style="background:rgba(255,255,255,0.08)">14 internal review</span><span class="pipe-tag" style="background:rgba(255,255,255,0.08)">1 reviewed by client</span></div>
       <details class="drill">
         <summary class="drill-toggle">View all campaigns <span class="drill-cnt">34</span></summary>
         <div class="drill-list"><div class="drill-row"><span class="drill-name">C1/M14: &quot;The NEWYOU26 Sale Has Ended. Here's What Didn't.&quot;</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">to do</span><span class="drill-am">@Unassigned</span><span class="drill-due drill-overdue">15d late</span></div>
@@ -887,7 +794,7 @@
         <div><strong>0</strong> in progress</div>
         <div><strong>11</strong> remaining</div>
       </div>
-      <div class="c-proj proj-late">Sep 08 (161d late)</div>
+      <div class="pipe-tags"><span class="pipe-tag" style="background:rgba(0,47,255,0.18)">3 in design</span><span class="pipe-tag" style="background:rgba(0,47,255,0.76)">3 complete</span><span class="pipe-tag" style="background:#002fff">1 scheduled</span><span class="pipe-tag" style="background:rgba(255,255,255,0.08)">5 in client review</span></div>
       <details class="drill">
         <summary class="drill-toggle">View all campaigns <span class="drill-cnt">12</span></summary>
         <div class="drill-list"><div class="drill-row"><span class="drill-name">C2M7 - Finding Your Effective Dose [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">12d late</span></div>
@@ -917,7 +824,7 @@
         <div><strong>0</strong> in progress</div>
         <div><strong>9</strong> remaining</div>
       </div>
-      <div class="c-proj proj-late">Apr 14 (14d late)</div>
+      <div class="pipe-tags"><span class="pipe-tag" style="background:rgba(255,255,255,0.08)">1 to do</span><span class="pipe-tag" style="background:rgba(255,255,255,0.15)">3 in copy</span><span class="pipe-tag" style="background:rgba(0,47,255,0.18)">3 in design</span><span class="pipe-tag" style="background:#002fff">5 scheduled</span><span class="pipe-tag" style="background:rgba(255,255,255,0.08)">2 in client review</span></div>
       <details class="drill">
         <summary class="drill-toggle">View all campaigns <span class="drill-cnt">14</span></summary>
         <div class="drill-list"><div class="drill-row"><span class="drill-name">C1M8: &quot;Spring Skin Reset&quot;</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">to do</span><span class="drill-am">@Unassigned</span><span class="drill-due drill-overdue">12d late</span></div>
@@ -949,7 +856,7 @@
         <div><strong>7</strong> in progress</div>
         <div><strong>5</strong> remaining</div>
       </div>
-      <div class="c-proj proj-ok">No velocity yet</div>
+      <div class="pipe-tags"><span class="pipe-tag" style="background:rgba(0,47,255,0.50)">3 in implementation</span><span class="pipe-tag" style="background:rgba(0,47,255,0.62)">4 in final check</span><span class="pipe-tag" style="background:rgba(0,47,255,0.76)">5 complete</span></div>
       <details class="drill">
         <summary class="drill-toggle">View all campaigns <span class="drill-cnt">12</span></summary>
         <div class="drill-list"><div class="drill-row"><span class="drill-name">C2M6 - EMDR just evolved - Here's what 2.0 actually changes</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-overdue">11d late</span></div>
@@ -975,7 +882,7 @@
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>Client</th><th>Month</th><th>Done</th><th>In Progress</th><th>Remaining</th><th>Total</th><th>%</th><th>Projected</th><th>Health</th>
+          <th>Client</th><th>Month</th><th>Done</th><th>In Progress</th><th>Remaining</th><th>Total</th><th>%</th><th>Health</th>
         </tr></thead>
         <tbody>
       <tr>
@@ -986,7 +893,6 @@
         <td>17</td>
         <td>34</td>
         <td class="pct">29%</td>
-        <td class="proj-late" style="font-size:0.8rem">Apr 23 (23d late)</td>
         <td><span class="h-dot h-warn"></span></td>
       </tr>
       <tr>
@@ -997,7 +903,6 @@
         <td>11</td>
         <td>12</td>
         <td class="pct">8%</td>
-        <td class="proj-late" style="font-size:0.8rem">Sep 08 (161d late)</td>
         <td><span class="h-dot h-bad"></span></td>
       </tr>
       <tr>
@@ -1008,7 +913,6 @@
         <td>9</td>
         <td>14</td>
         <td class="pct">36%</td>
-        <td class="proj-late" style="font-size:0.8rem">Apr 14 (14d late)</td>
         <td><span class="h-dot h-warn"></span></td>
       </tr>
       <tr>
@@ -1019,7 +923,6 @@
         <td>5</td>
         <td>12</td>
         <td class="pct">0%</td>
-        <td class="proj-ok" style="font-size:0.8rem">No velocity yet</td>
         <td><span class="h-dot h-bad"></span></td>
       </tr></tbody>
       </table>

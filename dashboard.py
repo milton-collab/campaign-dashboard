@@ -39,7 +39,8 @@ STATUS_ORDER = [
     "in implementation", "in final check", "complete", "scheduled",
 ]
 SAFE_STATUSES = {"in final check", "complete", "scheduled"}
-FIRE_ALERT_DAYS = 5
+FIRE_ALERT_DAYS = 0  # Same day only
+TRACKED_AMS = {"arqum", "gabriela bichini"}
 
 
 # ---------------------------------------------------------------------------
@@ -224,11 +225,13 @@ def build_fire_alerts(client_data):
 
 
 def build_am_scoreboard(client_data, done_statuses):
-    """Aggregate campaigns by assignee across all clients."""
+    """Aggregate campaigns by assignee — only tracked AMs."""
     am = {}
     for data in client_data.values():
         for task in data.get("tasks", []):
             name = task["assignee"]
+            if name.lower() not in TRACKED_AMS:
+                continue
             if name not in am:
                 am[name] = {"total": 0, "done": 0}
             am[name]["total"] += 1
@@ -311,7 +314,7 @@ def generate_html(client_data, now_cot, done_statuses):
       </div>"""
         fire_html = f"""
   <div class="fire-section anim" style="animation-delay:0.12s">
-    <div class="sec-title"><span class="fire-icon">&#9888;</span> Urgent — Due Within {FIRE_ALERT_DAYS} Days <span class="ln"></span></div>
+    <div class="sec-title"><span class="fire-icon">&#9888;</span> Urgent — Due Today <span class="ln"></span></div>
     <div class="fire-box">{rows}</div>
   </div>"""
 
@@ -357,9 +360,16 @@ def generate_html(client_data, now_cot, done_statuses):
         oom_count = data.get("out_of_month_count", 0)
         oom_badge = f'<span class="b-oom">{oom_count} out-of-month</span>' if oom_count > 0 else ""
 
-        proj = data.get("projected", {})
-        proj_cls = "proj-late" if proj.get("late") else "proj-ok"
-        proj_html = f'<div class="c-proj {proj_cls}">{proj.get("label", "")}</div>'
+        # Inline pipeline with readable labels
+        card_sorted = [s for s in STATUS_ORDER if s in data["status_counts"]]
+        card_sorted += sorted(set(data["status_counts"].keys()) - set(STATUS_ORDER))
+        pipe_tags = ""
+        for status in card_sorted:
+            count = data["status_counts"].get(status, 0)
+            if count == 0:
+                continue
+            s_color = STATUS_COLORS.get(status, "rgba(255,255,255,0.08)")
+            pipe_tags += f'<span class="pipe-tag" style="background:{s_color}">{count} {status}</span>'
 
         # Drill-down task list
         task_rows = ""
@@ -399,7 +409,7 @@ def generate_html(client_data, now_cot, done_statuses):
         <div><strong>{data['in_progress']}</strong> in progress</div>
         <div><strong>{data['remaining']}</strong> remaining</div>
       </div>
-      {proj_html}
+      <div class="pipe-tags">{pipe_tags}</div>
       {drill_html}
     </div>"""
 
@@ -411,8 +421,6 @@ def generate_html(client_data, now_cot, done_statuses):
         pct = round(data["done"] / data["total"] * 100) if data["total"] else 0
         dot_cls = dot_map[health]
         month_label = f"M{data['majority_month']}" if data.get("majority_month") else "-"
-        proj = data.get("projected", {})
-        proj_cls = "proj-late" if proj.get("late") else "proj-ok"
 
         detail_html += f"""
       <tr>
@@ -423,7 +431,6 @@ def generate_html(client_data, now_cot, done_statuses):
         <td>{data['remaining']}</td>
         <td>{data['total']}</td>
         <td class="pct">{pct}%</td>
-        <td class="{proj_cls}" style="font-size:0.8rem">{proj.get('label','')}</td>
         <td><span class="h-dot {dot_cls}"></span></td>
       </tr>"""
 
@@ -602,7 +609,6 @@ def main():
         result = classify_tasks(current_tasks, done_statuses, in_progress_statuses)
         health = compute_health(result["done"], result["total"], day_of_month, days_in_month)
         processed = process_tasks(current_tasks, now_cot)
-        projected = compute_projected_completion(result["done"], result["total"], now_cot, days_in_month)
 
         client_data[client_name] = {
             **result,
@@ -615,10 +621,9 @@ def main():
                 for t in oom_tasks
             ],
             "tasks": processed,
-            "projected": projected,
         }
 
-        print(f"  Done: {result['done']} | In Progress: {result['in_progress']} | Remaining: {result['remaining']} | Health: {health} | {projected['label']}")
+        print(f"  Done: {result['done']} | In Progress: {result['in_progress']} | Remaining: {result['remaining']} | Health: {health}")
 
     html = generate_html(client_data, now_cot, done_statuses)
     output_path = SCRIPT_DIR / "docs" / "index.html"

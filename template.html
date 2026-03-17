@@ -481,14 +481,19 @@
   .am-bar-fill { height: 100%; background: var(--blue); border-radius: 3px; animation: growWidth 1.2s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.8s; width: 0; }
   .am-pct { font-family: 'Satoshi','Inter',sans-serif; font-weight: 900; font-size: 1.5rem; color: var(--blue); }
 
-  /* ===== PROJECTED COMPLETION ===== */
-  .c-proj {
-    font-size: 0.8rem; color: rgba(var(--w),0.3);
+  /* ===== PIPELINE TAGS (inline in card) ===== */
+  .pipe-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
     margin-top: 14px; padding-top: 14px;
     border-top: 1px solid rgba(var(--w),0.04);
   }
-  .proj-late { color: var(--white); font-weight: 600; }
-  .proj-ok { color: rgba(var(--blue-rgb),0.7); }
+  .pipe-tag {
+    font-size: 0.7rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 8px;
+    color: var(--white);
+    white-space: nowrap;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
 
   /* ===== DRILL-DOWN ===== */
   .drill { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(var(--w),0.04); }
@@ -627,7 +632,7 @@
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>Client</th><th>Month</th><th>Done</th><th>In Progress</th><th>Remaining</th><th>Total</th><th>%</th><th>Projected</th><th>Health</th>
+          <th>Client</th><th>Month</th><th>Done</th><th>In Progress</th><th>Remaining</th><th>Total</th><th>%</th><th>Health</th>
         </tr></thead>
         <tbody>{{DETAIL_ROWS}}</tbody>
       </table>
