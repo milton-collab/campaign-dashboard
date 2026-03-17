@@ -206,20 +206,30 @@ def compute_health(done, total, day_of_month, days_in_month):
 # New features: fire alerts, AM scoreboard, projected completion
 # ---------------------------------------------------------------------------
 
-def build_fire_alerts(client_data):
-    """Find campaigns due TODAY that aren't near-done. Max 10."""
+def build_fire_alerts(client_data, now_cot):
+    """Find campaigns with send date this week that aren't done. Max 10."""
+    # Monday of current week
+    weekday = now_cot.weekday()  # 0=Mon
+    week_start = (now_cot - timedelta(days=weekday)).date()
+    week_end = week_start + timedelta(days=6)
+
     alerts = []
     for client_name, data in client_data.items():
         for task in data.get("tasks", []):
-            days = task.get("days_until_due")
-            if days is not None and days == 0 and task["status"] not in SAFE_STATUSES:
+            due = task.get("due_date")
+            if due is None or task["status"] in SAFE_STATUSES:
+                continue
+            if week_start <= due.date() <= week_end:
+                days = task["days_until_due"]
                 alerts.append({
                     "client": client_name,
                     "name": task["name"],
                     "status": task["status"],
                     "assignee": task["assignee"],
                     "days": days,
+                    "send_date": due.strftime("%a %b %d"),
                 })
+    alerts.sort(key=lambda a: (a["days"] is None, a["days"] or 0))
     return alerts[:10]
 
 
@@ -288,32 +298,31 @@ def generate_html(client_data, now_cot, done_statuses):
     overall_pct = round(total_done / total_all * 100) if total_all else 0
     ring_offset = round(565 * (1 - overall_pct / 100)) if overall_pct else 565
 
-    # --- Fire Alerts ---
-    alerts = build_fire_alerts(client_data)
+    # --- Send Date This Week ---
+    alerts = build_fire_alerts(client_data, now_cot)
     fire_html = ""
     if alerts:
         rows = ""
         for a in alerts:
             s_color = STATUS_COLORS.get(a["status"], "rgba(255,255,255,0.1)")
-            if a["days"] < 0:
-                day_label = f'{abs(a["days"])}d overdue'
+            send = a.get("send_date", "")
+            days = a["days"]
+            if days is not None and days < 0:
                 day_cls = "fire-overdue"
-            elif a["days"] == 0:
-                day_label = "Due today"
+            elif days is not None and days == 0:
                 day_cls = "fire-overdue"
             else:
-                day_label = f'{a["days"]}d left'
                 day_cls = "fire-soon"
             rows += f"""<div class="fire-row">
         <span class="fire-client">{a['client']}</span>
         <span class="fire-name">{_esc(a['name'])}</span>
         <span class="fire-pill" style="background:{s_color}">{a['status']}</span>
         <span class="fire-am">@{a['assignee']}</span>
-        <span class="fire-days {day_cls}">{day_label}</span>
+        <span class="fire-days {day_cls}">{send}</span>
       </div>"""
         fire_html = f"""
-  <div class="fire-section anim" style="animation-delay:0.12s">
-    <div class="sec-title"><span class="fire-icon">&#9888;</span> Urgent — Due Today <span class="ln"></span></div>
+  <div class="fire-section anim" style="animation-delay:0.7s">
+    <div class="sec-title">Send Date This Week <span class="ln"></span></div>
     <div class="fire-box">{rows}</div>
   </div>"""
 
@@ -542,9 +551,9 @@ def post_slack_summary(client_data, now_cot, dashboard_url):
     lines = [f"*Campaign Dashboard — {month_year}*"]
     lines.append(f"Overall: *{total_done}/{total_all}* campaigns scheduled\n")
 
-    alerts = build_fire_alerts(client_data)
+    alerts = build_fire_alerts(client_data, now_cot)
     if alerts:
-        lines.append(f":rotating_light: *{len(alerts)} campaigns due within {FIRE_ALERT_DAYS} days and not ready*\n")
+        lines.append(f":rotating_light: *{len(alerts)} campaigns sending this week still not ready*\n")
 
     health_emoji = {"green": ":large_green_circle:", "yellow": ":large_yellow_circle:", "red": ":red_circle:"}
     for name, data in client_data.items():
