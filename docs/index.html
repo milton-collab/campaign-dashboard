@@ -436,6 +436,89 @@
   .leg-item { display: flex; align-items: center; gap: 8px; font-weight: 500; }
   .leg-sw { width: 14px; height: 14px; border-radius: 4px; }
 
+  /* ===== FIRE ALERTS ===== */
+  .fire-section { margin-bottom: 48px; }
+  .fire-box {
+    background: rgba(var(--w),0.03);
+    border: 1px solid rgba(var(--w),0.1);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .fire-icon { font-size: 1.1rem; }
+  .fire-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 24px;
+    border-bottom: 1px solid rgba(var(--w),0.03);
+    font-size: 0.85rem;
+    transition: background 0.15s;
+  }
+  .fire-row:last-child { border-bottom: none; }
+  .fire-row:hover { background: rgba(var(--w),0.02); }
+  .fire-client { font-weight: 700; width: 140px; flex-shrink: 0; }
+  .fire-name { flex: 1; color: rgba(var(--w),0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .fire-pill { font-size: 0.7rem; font-weight: 600; padding: 3px 10px; border-radius: 8px; color: var(--white); white-space: nowrap; }
+  .fire-am { font-size: 0.75rem; color: rgba(var(--w),0.3); white-space: nowrap; }
+  .fire-days { font-size: 0.75rem; font-weight: 700; padding: 4px 12px; border-radius: 20px; white-space: nowrap; }
+  .fire-overdue { background: var(--white); color: var(--black); animation: pulse 2.5s ease-in-out infinite; }
+  .fire-soon { background: rgba(var(--w),0.1); color: rgba(var(--w),0.6); }
+
+  /* ===== AM SCOREBOARD ===== */
+  .am-section { margin-bottom: 56px; }
+  .am-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .am-card {
+    background: rgba(var(--w),0.025);
+    border: 1px solid rgba(var(--w),0.06);
+    border-radius: 16px;
+    padding: 20px;
+    transition: border-color 0.3s;
+  }
+  .am-card:hover { border-color: rgba(var(--blue-rgb),0.3); }
+  .am-name { font-family: 'Satoshi','Inter',sans-serif; font-weight: 700; font-size: 0.95rem; margin-bottom: 6px; }
+  .am-nums { font-size: 0.85rem; color: rgba(var(--w),0.35); margin-bottom: 10px; }
+  .am-nums strong { color: var(--white); font-weight: 700; }
+  .am-nums span { color: rgba(var(--w),0.25); }
+  .am-bar-track { height: 6px; background: rgba(var(--w),0.04); border-radius: 3px; overflow: hidden; margin-bottom: 10px; }
+  .am-bar-fill { height: 100%; background: var(--blue); border-radius: 3px; animation: growWidth 1.2s cubic-bezier(0.16,1,0.3,1) forwards; animation-delay: 0.8s; width: 0; }
+  .am-pct { font-family: 'Satoshi','Inter',sans-serif; font-weight: 900; font-size: 1.5rem; color: var(--blue); }
+
+  /* ===== PROJECTED COMPLETION ===== */
+  .c-proj {
+    font-size: 0.8rem; color: rgba(var(--w),0.3);
+    margin-top: 14px; padding-top: 14px;
+    border-top: 1px solid rgba(var(--w),0.04);
+  }
+  .proj-late { color: var(--white); font-weight: 600; }
+  .proj-ok { color: rgba(var(--blue-rgb),0.7); }
+
+  /* ===== DRILL-DOWN ===== */
+  .drill { margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(var(--w),0.04); }
+  .drill-toggle {
+    font-size: 0.8rem; font-weight: 600; color: rgba(var(--w),0.35);
+    cursor: pointer; display: flex; align-items: center; gap: 8px;
+    list-style: none; transition: color 0.2s;
+  }
+  .drill-toggle::-webkit-details-marker { display: none; }
+  .drill-toggle::before { content: '\25B6'; font-size: 0.5rem; color: rgba(var(--w),0.2); transition: transform 0.2s; }
+  .drill[open] .drill-toggle::before { transform: rotate(90deg); }
+  .drill-toggle:hover { color: rgba(var(--w),0.6); }
+  .drill-cnt { font-size: 0.7rem; background: rgba(var(--w),0.05); padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+  .drill-list { max-height: 400px; overflow-y: auto; margin-top: 12px; }
+  .drill-list::-webkit-scrollbar { width: 4px; }
+  .drill-list::-webkit-scrollbar-track { background: transparent; }
+  .drill-list::-webkit-scrollbar-thumb { background: rgba(var(--w),0.1); border-radius: 2px; }
+  .drill-row {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 0; border-bottom: 1px solid rgba(var(--w),0.025);
+    font-size: 0.8rem;
+  }
+  .drill-row:last-child { border-bottom: none; }
+  .drill-name { flex: 1; color: rgba(var(--w),0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .drill-pill { font-size: 0.65rem; font-weight: 600; padding: 2px 8px; border-radius: 6px; color: var(--white); white-space: nowrap; flex-shrink: 0; }
+  .drill-am { font-size: 0.7rem; color: rgba(var(--w),0.25); white-space: nowrap; flex-shrink: 0; }
+  .drill-due { font-size: 0.7rem; font-weight: 600; color: rgba(var(--w),0.3); white-space: nowrap; flex-shrink: 0; }
+  .drill-overdue { background: var(--white); color: var(--black); padding: 2px 8px; border-radius: 10px; }
+  .drill-urgent { color: rgba(var(--w),0.7); font-weight: 700; }
+
   /* ===== OUT-OF-MONTH ===== */
   .oom-section { margin-bottom: 80px; }
   .oom-box {
@@ -490,6 +573,12 @@
     table { min-width: 700px; }
     .sec-title { font-size: 1.2rem; }
     .hero::before { width: 400px; }
+    .fire-row { flex-wrap: wrap; }
+    .fire-client { width: auto; }
+    .fire-name { min-width: 100%; }
+    .am-grid { grid-template-columns: repeat(2, 1fr); }
+    .drill-row { flex-wrap: wrap; }
+    .drill-name { min-width: 100%; }
   }
 </style>
 </head>
@@ -518,7 +607,163 @@
       </div>
     </div>
 
-    <div class="day-pill">Day <strong>16</strong> of 31 &middot; Updated Mar 16, 2026 at 09:31 PM COT</div>
+    <div class="day-pill">Day <strong>16</strong> of 31 &middot; Updated Mar 16, 2026 at 09:54 PM COT</div>
+  </div>
+
+  
+  <div class="fire-section anim" style="animation-delay:0.12s">
+    <div class="sec-title"><span class="fire-icon">&#9888;</span> Urgent — Due Within 5 Days <span class="ln"></span></div>
+    <div class="fire-box"><div class="fire-row">
+        <span class="fire-client">Effecty</span>
+        <span class="fire-name">C1/M14: &quot;The NEWYOU26 Sale Has Ended. Here's What Didn't.&quot;</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.08)">to do</span>
+        <span class="fire-am">@Unassigned</span>
+        <span class="fire-days fire-overdue">15d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">C1M8: &quot;Spring Skin Reset&quot;</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.08)">to do</span>
+        <span class="fire-am">@Unassigned</span>
+        <span class="fire-days fire-overdue">12d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Freya</span>
+        <span class="fire-name">C9M7 - Differentiation: Flat-Rate Pricing [DESIGNED]</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">in client review</span>
+        <span class="fire-am">@Luke Marshall</span>
+        <span class="fire-days fire-overdue">6d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Freya</span>
+        <span class="fire-name">C8M7 - Quarterly Upgrade: Outcomes First [PLAIN TEXT]</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">in client review</span>
+        <span class="fire-am">@Luke Marshall</span>
+        <span class="fire-days fire-overdue">6d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Freya</span>
+        <span class="fire-name">C7M7 - What Changed? (Reason Capture) [PLAIN TEXT]</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">in client review</span>
+        <span class="fire-am">@Jam</span>
+        <span class="fire-days fire-overdue">6d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Freya</span>
+        <span class="fire-name">C4M7 - 3 Patients Who Almost Quit [DESIGNED]</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">in client review</span>
+        <span class="fire-am">@Jam</span>
+        <span class="fire-days fire-overdue">6d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Freya</span>
+        <span class="fire-name">C14M7 - Monday Is Not a Strategy [DESIGNED]</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">in client review</span>
+        <span class="fire-am">@Arqum Khan</span>
+        <span class="fire-days fire-overdue">5d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Online CE Credits</span>
+        <span class="fire-name">C12M6 - Bundle Browsers - Plain text</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.50)">in implementation</span>
+        <span class="fire-am">@Jam</span>
+        <span class="fire-days fire-overdue">4d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Online CE Credits</span>
+        <span class="fire-name">C11M6 - LAPSED VERSION (121-270 days) - Plain text</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.50)">in implementation</span>
+        <span class="fire-am">@Arqum Khan</span>
+        <span class="fire-days fire-overdue">4d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Online CE Credits</span>
+        <span class="fire-name">C10M6  - AT-RISK VERSION (60-120 days) - Plain text</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.50)">in implementation</span>
+        <span class="fire-am">@Jam</span>
+        <span class="fire-days fire-overdue">4d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Effecty</span>
+        <span class="fire-name">Create GLP-1 Click-Based Segments (A/B/C)</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.08)">to do</span>
+        <span class="fire-am">@Gabriela Vicini</span>
+        <span class="fire-days fire-overdue">3d overdue</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Freya</span>
+        <span class="fire-name">C12M7 - She Stopped Cancelling [DESIGNED]</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
+        <span class="fire-am">@Arqum Khan</span>
+        <span class="fire-days fire-overdue">Due today</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Freya</span>
+        <span class="fire-name">C11M7 - To the Woman Who's Tried Everything [PLAIN TEXT]</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
+        <span class="fire-am">@Jam</span>
+        <span class="fire-days fire-overdue">Due today</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Freya</span>
+        <span class="fire-name">C13M7 - Before You Go (Cancellation Save) [PLAIN TEXT]</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
+        <span class="fire-am">@Arqum Khan</span>
+        <span class="fire-days fire-overdue">Due today</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">C8M8 — Replenishment Reminder: Your Ritual Is Running Low</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">in client review</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-overdue">Due today</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">C7M8 — The Trifecta: 3 Masks, 1 Complete Ritual</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">in client review</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-overdue">Due today</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">C11M8 — EID Sale Last Call: Ends at Midnight</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">1d left</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">C10M8 —  Sale 30% Off: 48-Hour Sale Launch</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">1d left</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">C9M8 — Social Proof Spotlight</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.18)">in design</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">1d left</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Effecty</span>
+        <span class="fire-name">C19/M14 - 6 Health Markers That Improve on GLP-1 [LONG FORM]</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">reviewed by client</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">3d left</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">GT | Browse Abandonment Flow</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.15)">in copy</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">3d left</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">GT | Checkout Abandonment Flow</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.15)">in copy</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">3d left</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Ammu Beauty</span>
+        <span class="fire-name">GT | Abandoned Cart Flow</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.15)">in copy</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">3d left</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Effecty</span>
+        <span class="fire-name">C14/M14 - The Real Math on GLP-1 [SHORT FORM]</span>
+        <span class="fire-pill" style="background:rgba(0,47,255,0.50)">in implementation</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">4d left</span>
+      </div><div class="fire-row">
+        <span class="fire-client">Effecty</span>
+        <span class="fire-name">C15/M14 - Winback: Churned GLP-1 30-90 Days [PLAIN TEXT]</span>
+        <span class="fire-pill" style="background:rgba(255,255,255,0.1)">internal review</span>
+        <span class="fire-am">@Geoffrey Florante</span>
+        <span class="fire-days fire-soon">4d left</span>
+      </div></div>
   </div>
 
   <div class="summary anim" style="animation-delay:0.15s">
@@ -530,99 +775,198 @@
     
   </div>
 
+  
+  <div class="am-section anim" style="animation-delay:0.2s">
+    <div class="sec-title">Account Managers <span class="ln"></span></div>
+    <div class="am-grid"><div class="am-card">
+        <div class="am-name">@Grace Wachira</div>
+        <div class="am-nums"><strong>1</strong> <span>/ 1</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:100%"></div></div>
+        <div class="am-pct" data-count="100">100%</div>
+      </div><div class="am-card">
+        <div class="am-name">@Geoffrey Florante</div>
+        <div class="am-nums"><strong>14</strong> <span>/ 44</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:32%"></div></div>
+        <div class="am-pct" data-count="32">32%</div>
+      </div><div class="am-card">
+        <div class="am-name">@Jam</div>
+        <div class="am-nums"><strong>1</strong> <span>/ 12</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:8%"></div></div>
+        <div class="am-pct" data-count="8">8%</div>
+      </div><div class="am-card">
+        <div class="am-name">@Unassigned</div>
+        <div class="am-nums"><strong>0</strong> <span>/ 2</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
+        <div class="am-pct" data-count="0">0%</div>
+      </div><div class="am-card">
+        <div class="am-name">@Gabriela Vicini</div>
+        <div class="am-nums"><strong>0</strong> <span>/ 1</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
+        <div class="am-pct" data-count="0">0%</div>
+      </div><div class="am-card">
+        <div class="am-name">@Arqum Khan</div>
+        <div class="am-nums"><strong>0</strong> <span>/ 9</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
+        <div class="am-pct" data-count="0">0%</div>
+      </div><div class="am-card">
+        <div class="am-name">@Luke Marshall</div>
+        <div class="am-nums"><strong>0</strong> <span>/ 2</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
+        <div class="am-pct" data-count="0">0%</div>
+      </div><div class="am-card">
+        <div class="am-name">@Joshua Macalalad</div>
+        <div class="am-nums"><strong>0</strong> <span>/ 1</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:0%"></div></div>
+        <div class="am-pct" data-count="0">0%</div>
+      </div></div>
+  </div>
+
   <div class="cards">
     
-    <div class="card anim" style="animation-delay:0.25s">
+    <div class="card anim" style="animation-delay:0.30s">
       <div class="c-head">
-        <div class="c-name">
-          <span class="c-dot"></span>
-          Effecty
-          <span class="m-tag">M14</span>
-        </div>
-        <div class="c-badges">
-          
-          <span class="badge b-at">At Risk</span>
-        </div>
+        <div class="c-name"><span class="c-dot"></span>Effecty<span class="m-tag">M14</span></div>
+        <div class="c-badges"><span class="badge b-at">At Risk</span></div>
       </div>
       <div class="big-num"><span data-count="10">10</span> <span class="of">/ 34</span></div>
-      <div class="prog-track">
-        <div class="prog-done" style="width:29%"></div>
-        <div class="prog-wip" style="width:21%"></div>
-      </div>
+      <div class="prog-track"><div class="prog-done" style="width:29%"></div><div class="prog-wip" style="width:21%"></div></div>
       <div class="c-stats">
         <div><strong>10</strong> done</div>
         <div><strong>7</strong> in progress</div>
         <div><strong>17</strong> remaining</div>
       </div>
+      <div class="c-proj proj-late">Apr 23 (23d late)</div>
+      <details class="drill">
+        <summary class="drill-toggle">View all campaigns <span class="drill-cnt">34</span></summary>
+        <div class="drill-list"><div class="drill-row"><span class="drill-name">C1/M14: &quot;The NEWYOU26 Sale Has Ended. Here's What Didn't.&quot;</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">to do</span><span class="drill-am">@Unassigned</span><span class="drill-due drill-overdue">15d late</span></div>
+<div class="drill-row"><span class="drill-name">Most Patients Combine Treatments | HRT Cross Sell to NAD+</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Grace Wachira</span><span class="drill-due drill-overdue">12d late</span></div>
+<div class="drill-row"><span class="drill-name">C10/M14 - Cross-Sell Sermorelin to NAD+ Customers [SHORT FORM]</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C9/M14 - Prescribed Treatments: Energy, Sleep, Recovery [LONG FORM]</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C7/M14 - Provider Plain Text: Trust Building [PLAIN TEXT]</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C6/M14 - Plan Upgrade: Monthly to Quarterly [SHORT FORM]</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C5/M14 - Your First Week with Effecty [SHORT FORM]</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C4/M14 - Cross-Sell GLP-1 Patients (91-180d) to NAD+[LONG FORM] </span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C3/M14 - What's Included: Value Breakdown [SHORT FORM]</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C2/M14 - First 30 Days: What to Look Forward To [SHORT FORM] </span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C1/M14 - EFFECTY100: Continued Commitment [PLAIN TEXT] </span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">Create GLP-1 Click-Based Segments (A/B/C)</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">to do</span><span class="drill-am">@Gabriela Vicini</span><span class="drill-due drill-overdue">3d late</span></div>
+<div class="drill-row"><span class="drill-name">C19/M14 - 6 Health Markers That Improve on GLP-1 [LONG FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">reviewed by client</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">3d</span></div>
+<div class="drill-row"><span class="drill-name">C14/M14 - The Real Math on GLP-1 [SHORT FORM]</span><span class="drill-pill" style="background:rgba(0,47,255,0.50)">in implementation</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">4d</span></div>
+<div class="drill-row"><span class="drill-name">C15/M14 - Winback: Churned GLP-1 30-90 Days [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">4d</span></div>
+<div class="drill-row"><span class="drill-name">C20/M14 – Share Effecty: $50 Referral Program [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C21/M14 - Inside Our Safety Standards [LONG FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C22/M14 - Deep Winback: $100 Off EFFECTY100</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C23/M14 - Real Patient Results [LONG FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C25/M14 - Energy + Clarity: Longevity Prospects [SHORT FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C26/M14 - Trustpilot Review Request ($25 Off) [SHORT FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C27/M14 - Pre-Renewal Quarterly Upgrade [SHORT FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C28/M14 - The Daily Cost of GLP-1 Treatment [LONG FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C29/M14 - Week 2 Check-In: New Patients [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C30/M14 - Energy + Protection Stack: NAD+ and Glutathione [LONG FORM] </span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C24/M14 - 6 Months In: The Next Level [LONG FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C31/M14 - Your 6-Month GLP-1 Journey [LONG FORM]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C32/M14 - April Preview [SHORT FORM] </span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">internal review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due ">7d</span></div>
+<div class="drill-row"><span class="drill-name">C12/M14 - Recovery + Protection: GLP-1 Add-Ons [SHORT FORM]</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">0d</span></div>
+<div class="drill-row"><span class="drill-name">C13/M14 - What Makes GLP-1 Different [SHORT FORM]</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">0d</span></div>
+<div class="drill-row"><span class="drill-name">C16/M14 - Patient Stories [SHORT FORM]</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">0d</span></div>
+<div class="drill-row"><span class="drill-name">C17/M14 - Referral $50/$50 [SHORT FORM]</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">0d</span></div>
+<div class="drill-row"><span class="drill-name">C18/M14 - 3 Steps to Start [SHORT FORM] </span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">0d</span></div>
+<div class="drill-row"><span class="drill-name">C11/M14 - HRT: Regain Balance and Vitality [LONG FORM]</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">0d</span></div>
+</div>
+      </details>
     </div>
-    <div class="card anim" style="animation-delay:0.35s">
+    <div class="card anim" style="animation-delay:0.40s">
       <div class="c-head">
-        <div class="c-name">
-          <span class="c-dot"></span>
-          Freya
-          <span class="m-tag">M7</span>
-        </div>
-        <div class="c-badges">
-          
-          <span class="badge b-behind">Behind</span>
-        </div>
+        <div class="c-name"><span class="c-dot"></span>Freya<span class="m-tag">M7</span></div>
+        <div class="c-badges"><span class="badge b-behind">Behind</span></div>
       </div>
       <div class="big-num"><span data-count="1">1</span> <span class="of">/ 12</span></div>
-      <div class="prog-track">
-        <div class="prog-done" style="width:8%"></div>
-        <div class="prog-wip" style="width:0%"></div>
-      </div>
+      <div class="prog-track"><div class="prog-done" style="width:8%"></div><div class="prog-wip" style="width:0%"></div></div>
       <div class="c-stats">
         <div><strong>1</strong> done</div>
         <div><strong>0</strong> in progress</div>
         <div><strong>11</strong> remaining</div>
       </div>
+      <div class="c-proj proj-late">Sep 08 (161d late)</div>
+      <details class="drill">
+        <summary class="drill-toggle">View all campaigns <span class="drill-cnt">12</span></summary>
+        <div class="drill-list"><div class="drill-row"><span class="drill-name">C2M7 - Finding Your Effective Dose [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">12d late</span></div>
+<div class="drill-row"><span class="drill-name">C1M7 - A Note From Bonnie [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">12d late</span></div>
+<div class="drill-row"><span class="drill-name">C3M7 - We Held Your Spot [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C5M7 - Nobody Sees the 11 pm Kitchen [DESIGNED]</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">7d late</span></div>
+<div class="drill-row"><span class="drill-name">C9M7 - Differentiation: Flat-Rate Pricing [DESIGNED]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">in client review</span><span class="drill-am">@Luke Marshall</span><span class="drill-due drill-overdue">6d late</span></div>
+<div class="drill-row"><span class="drill-name">C8M7 - Quarterly Upgrade: Outcomes First [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">in client review</span><span class="drill-am">@Luke Marshall</span><span class="drill-due drill-overdue">6d late</span></div>
+<div class="drill-row"><span class="drill-name">C7M7 - What Changed? (Reason Capture) [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">in client review</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">6d late</span></div>
+<div class="drill-row"><span class="drill-name">C4M7 - 3 Patients Who Almost Quit [DESIGNED]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">in client review</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">6d late</span></div>
+<div class="drill-row"><span class="drill-name">C14M7 - Monday Is Not a Strategy [DESIGNED]</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">in client review</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-overdue">5d late</span></div>
+<div class="drill-row"><span class="drill-name">C12M7 - She Stopped Cancelling [DESIGNED]</span><span class="drill-pill" style="background:rgba(0,47,255,0.18)">in design</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-urgent">0d</span></div>
+<div class="drill-row"><span class="drill-name">C11M7 - To the Woman Who's Tried Everything [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(0,47,255,0.18)">in design</span><span class="drill-am">@Jam</span><span class="drill-due drill-urgent">0d</span></div>
+<div class="drill-row"><span class="drill-name">C13M7 - Before You Go (Cancellation Save) [PLAIN TEXT]</span><span class="drill-pill" style="background:rgba(0,47,255,0.18)">in design</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-urgent">0d</span></div>
+</div>
+      </details>
     </div>
-    <div class="card anim" style="animation-delay:0.45s">
+    <div class="card anim" style="animation-delay:0.50s">
       <div class="c-head">
-        <div class="c-name">
-          <span class="c-dot"></span>
-          Ammu Beauty
-          <span class="m-tag">M8</span>
-        </div>
-        <div class="c-badges">
-          
-          <span class="badge b-at">At Risk</span>
-        </div>
+        <div class="c-name"><span class="c-dot"></span>Ammu Beauty<span class="m-tag">M8</span></div>
+        <div class="c-badges"><span class="badge b-at">At Risk</span></div>
       </div>
       <div class="big-num"><span data-count="5">5</span> <span class="of">/ 14</span></div>
-      <div class="prog-track">
-        <div class="prog-done" style="width:36%"></div>
-        <div class="prog-wip" style="width:0%"></div>
-      </div>
+      <div class="prog-track"><div class="prog-done" style="width:36%"></div><div class="prog-wip" style="width:0%"></div></div>
       <div class="c-stats">
         <div><strong>5</strong> done</div>
         <div><strong>0</strong> in progress</div>
         <div><strong>9</strong> remaining</div>
       </div>
+      <div class="c-proj proj-late">Apr 14 (14d late)</div>
+      <details class="drill">
+        <summary class="drill-toggle">View all campaigns <span class="drill-cnt">14</span></summary>
+        <div class="drill-list"><div class="drill-row"><span class="drill-name">C1M8: &quot;Spring Skin Reset&quot;</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">to do</span><span class="drill-am">@Unassigned</span><span class="drill-due drill-overdue">12d late</span></div>
+<div class="drill-row"><span class="drill-name">C5M8 — Named After My Mother: WHM Brand Story</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">7d late</span></div>
+<div class="drill-row"><span class="drill-name">C4M8 — Eid Sale Reminder: 30% Off On Your Ritual [PLAIN TEXT]</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">7d late</span></div>
+<div class="drill-row"><span class="drill-name">C3M8 — Beauty Ritual Sale EID 30%</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">7d late</span></div>
+<div class="drill-row"><span class="drill-name">C2M8 — Eid Ritual Sale (30% Off Sitewide)</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">7d late</span></div>
+<div class="drill-row"><span class="drill-name">C1M8 — Spring Skin Reset</span><span class="drill-pill" style="background:#002fff">scheduled</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-overdue">7d late</span></div>
+<div class="drill-row"><span class="drill-name">C11M8 — EID Sale Last Call: Ends at Midnight</span><span class="drill-pill" style="background:rgba(0,47,255,0.18)">in design</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">1d</span></div>
+<div class="drill-row"><span class="drill-name">C10M8 —  Sale 30% Off: 48-Hour Sale Launch</span><span class="drill-pill" style="background:rgba(0,47,255,0.18)">in design</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">1d</span></div>
+<div class="drill-row"><span class="drill-name">C9M8 — Social Proof Spotlight</span><span class="drill-pill" style="background:rgba(0,47,255,0.18)">in design</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">1d</span></div>
+<div class="drill-row"><span class="drill-name">GT | Browse Abandonment Flow</span><span class="drill-pill" style="background:rgba(255,255,255,0.15)">in copy</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">3d</span></div>
+<div class="drill-row"><span class="drill-name">GT | Checkout Abandonment Flow</span><span class="drill-pill" style="background:rgba(255,255,255,0.15)">in copy</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">3d</span></div>
+<div class="drill-row"><span class="drill-name">GT | Abandoned Cart Flow</span><span class="drill-pill" style="background:rgba(255,255,255,0.15)">in copy</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">3d</span></div>
+<div class="drill-row"><span class="drill-name">C8M8 — Replenishment Reminder: Your Ritual Is Running Low</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">in client review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">0d</span></div>
+<div class="drill-row"><span class="drill-name">C7M8 — The Trifecta: 3 Masks, 1 Complete Ritual</span><span class="drill-pill" style="background:rgba(255,255,255,0.08)">in client review</span><span class="drill-am">@Geoffrey Florante</span><span class="drill-due drill-urgent">0d</span></div>
+</div>
+      </details>
     </div>
-    <div class="card anim" style="animation-delay:0.55s">
+    <div class="card anim" style="animation-delay:0.60s">
       <div class="c-head">
-        <div class="c-name">
-          <span class="c-dot"></span>
-          Online CE Credits
-          <span class="m-tag">M6</span>
-        </div>
-        <div class="c-badges">
-          
-          <span class="badge b-behind">Behind</span>
-        </div>
+        <div class="c-name"><span class="c-dot"></span>Online CE Credits<span class="m-tag">M6</span></div>
+        <div class="c-badges"><span class="badge b-behind">Behind</span></div>
       </div>
       <div class="big-num"><span data-count="0">0</span> <span class="of">/ 12</span></div>
-      <div class="prog-track">
-        <div class="prog-done" style="width:0%"></div>
-        <div class="prog-wip" style="width:58%"></div>
-      </div>
+      <div class="prog-track"><div class="prog-done" style="width:0%"></div><div class="prog-wip" style="width:58%"></div></div>
       <div class="c-stats">
         <div><strong>0</strong> done</div>
         <div><strong>7</strong> in progress</div>
         <div><strong>5</strong> remaining</div>
       </div>
+      <div class="c-proj proj-ok">No velocity yet</div>
+      <details class="drill">
+        <summary class="drill-toggle">View all campaigns <span class="drill-cnt">12</span></summary>
+        <div class="drill-list"><div class="drill-row"><span class="drill-name">C2M6 - EMDR just evolved - Here's what 2.0 actually changes</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C1M6 - CE Renewal Deadline</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-overdue">11d late</span></div>
+<div class="drill-row"><span class="drill-name">C4M6 - Lapsed customers - once engaged (plain text)</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-overdue">10d late</span></div>
+<div class="drill-row"><span class="drill-name">C3M6 - Neuronutrition Summit</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Joshua Macalalad</span><span class="drill-due drill-overdue">10d late</span></div>
+<div class="drill-row"><span class="drill-name">C5M6 - substance use therapist</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">7d late</span></div>
+<div class="drill-row"><span class="drill-name">C6M6 - 13 credentials. Choose yours</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">6d late</span></div>
+<div class="drill-row"><span class="drill-name">C12M6 - Bundle Browsers - Plain text</span><span class="drill-pill" style="background:rgba(0,47,255,0.50)">in implementation</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">4d late</span></div>
+<div class="drill-row"><span class="drill-name">C11M6 - LAPSED VERSION (121-270 days) - Plain text</span><span class="drill-pill" style="background:rgba(0,47,255,0.50)">in implementation</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-overdue">4d late</span></div>
+<div class="drill-row"><span class="drill-name">C10M6  - AT-RISK VERSION (60-120 days) - Plain text</span><span class="drill-pill" style="background:rgba(0,47,255,0.50)">in implementation</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">4d late</span></div>
+<div class="drill-row"><span class="drill-name">C9M6 - Blog Post Certificate vs Certification
+</span><span class="drill-pill" style="background:rgba(0,47,255,0.76)">complete</span><span class="drill-am">@Arqum Khan</span><span class="drill-due drill-overdue">4d late</span></div>
+<div class="drill-row"><span class="drill-name">C8M6 - NDIT Last Chance Plain Text</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">4d late</span></div>
+<div class="drill-row"><span class="drill-name">C7M6 - NDIT 50% Off</span><span class="drill-pill" style="background:rgba(0,47,255,0.62)">in final check</span><span class="drill-am">@Jam</span><span class="drill-due drill-overdue">4d late</span></div>
+</div>
+      </details>
     </div>
   </div>
 
@@ -631,7 +975,7 @@
     <div class="tbl-wrap">
       <table>
         <thead><tr>
-          <th>Client</th><th>Month</th><th>Done</th><th>In Progress</th><th>Remaining</th><th>Total</th><th>%</th><th>Health</th>
+          <th>Client</th><th>Month</th><th>Done</th><th>In Progress</th><th>Remaining</th><th>Total</th><th>%</th><th>Projected</th><th>Health</th>
         </tr></thead>
         <tbody>
       <tr>
@@ -642,6 +986,7 @@
         <td>17</td>
         <td>34</td>
         <td class="pct">29%</td>
+        <td class="proj-late" style="font-size:0.8rem">Apr 23 (23d late)</td>
         <td><span class="h-dot h-warn"></span></td>
       </tr>
       <tr>
@@ -652,6 +997,7 @@
         <td>11</td>
         <td>12</td>
         <td class="pct">8%</td>
+        <td class="proj-late" style="font-size:0.8rem">Sep 08 (161d late)</td>
         <td><span class="h-dot h-bad"></span></td>
       </tr>
       <tr>
@@ -662,6 +1008,7 @@
         <td>9</td>
         <td>14</td>
         <td class="pct">36%</td>
+        <td class="proj-late" style="font-size:0.8rem">Apr 14 (14d late)</td>
         <td><span class="h-dot h-warn"></span></td>
       </tr>
       <tr>
@@ -672,6 +1019,7 @@
         <td>5</td>
         <td>12</td>
         <td class="pct">0%</td>
+        <td class="proj-ok" style="font-size:0.8rem">No velocity yet</td>
         <td><span class="h-dot h-bad"></span></td>
       </tr></tbody>
       </table>
@@ -697,7 +1045,7 @@
       <div class="pipe-lbl"><span class="c-dot" style="display:inline-block"></span> Online CE Credits</div>
       <div class="pipe-bar"><div class="pipe-seg" style="width:25.0%;background:rgba(0,47,255,0.50)" title="in implementation: 3">3</div><div class="pipe-seg" style="width:33.33333333333333%;background:rgba(0,47,255,0.62)" title="in final check: 4">4</div><div class="pipe-seg" style="width:41.66666666666667%;background:rgba(0,47,255,0.76)" title="complete: 5">5</div></div>
     </div>
-    <div class="pipe-legend"><div class="leg-item"><span class="leg-sw" style="background:rgba(255,255,255,0.08)"></span>To Do</div><div class="leg-item"><span class="leg-sw" style="background:rgba(255,255,255,0.15)"></span>In Copy</div><div class="leg-item"><span class="leg-sw" style="background:rgba(0,47,255,0.18)"></span>In Design</div><div class="leg-item"><span class="leg-sw" style="background:rgba(0,47,255,0.50)"></span>In Implementation</div><div class="leg-item"><span class="leg-sw" style="background:rgba(0,47,255,0.62)"></span>In Final Check</div><div class="leg-item"><span class="leg-sw" style="background:rgba(0,47,255,0.76)"></span>Complete</div><div class="leg-item"><span class="leg-sw" style="background:#002fff"></span>Scheduled</div><div class="leg-item"><span class="leg-sw" style="background:#6b7280"></span>In Client Review</div><div class="leg-item"><span class="leg-sw" style="background:#6b7280"></span>Internal Review</div><div class="leg-item"><span class="leg-sw" style="background:#6b7280"></span>Reviewed By Client</div></div>
+    <div class="pipe-legend"><div class="leg-item"><span class="leg-sw" style="background:rgba(255,255,255,0.08)"></span>To Do</div><div class="leg-item"><span class="leg-sw" style="background:rgba(255,255,255,0.15)"></span>In Copy</div><div class="leg-item"><span class="leg-sw" style="background:rgba(0,47,255,0.18)"></span>In Design</div><div class="leg-item"><span class="leg-sw" style="background:rgba(0,47,255,0.50)"></span>In Implementation</div><div class="leg-item"><span class="leg-sw" style="background:rgba(0,47,255,0.62)"></span>In Final Check</div><div class="leg-item"><span class="leg-sw" style="background:rgba(0,47,255,0.76)"></span>Complete</div><div class="leg-item"><span class="leg-sw" style="background:#002fff"></span>Scheduled</div><div class="leg-item"><span class="leg-sw" style="background:rgba(255,255,255,0.1)"></span>In Client Review</div><div class="leg-item"><span class="leg-sw" style="background:rgba(255,255,255,0.1)"></span>Internal Review</div><div class="leg-item"><span class="leg-sw" style="background:rgba(255,255,255,0.1)"></span>Reviewed By Client</div></div>
   </div>
 
   

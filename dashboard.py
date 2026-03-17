@@ -21,6 +21,7 @@ import requests
 CLICKUP_V2 = "https://api.clickup.com/api/v2"
 COT = timezone(timedelta(hours=-5))
 SCRIPT_DIR = Path(__file__).parent
+
 # Gray→Blue gradient pipeline — progresses from muted to full blue at "scheduled"
 STATUS_COLORS = {
     "to do": "rgba(255,255,255,0.08)",
@@ -33,11 +34,12 @@ STATUS_COLORS = {
     "complete": "rgba(0,47,255,0.76)",
     "scheduled": "#002fff",
 }
-# Pipeline order: gray → blue gradient, "scheduled" is the final destination
 STATUS_ORDER = [
     "to do", "in copy", "in design", "review", "in design qa",
     "in implementation", "in final check", "complete", "scheduled",
 ]
+SAFE_STATUSES = {"in final check", "complete", "scheduled"}
+FIRE_ALERT_DAYS = 5
 
 
 # ---------------------------------------------------------------------------
@@ -106,13 +108,11 @@ def fetch_tasks_for_month(list_id, headers, year, month):
 # ---------------------------------------------------------------------------
 
 def extract_month_number(task_name: str) -> Optional[int]:
-    """Extract month number from 'C1/M14 — ...' or 'C3M7 - ...' patterns."""
     match = re.search(r'C\d+/?M(\d+)', task_name)
     return int(match.group(1)) if match else None
 
 
 def split_by_month_convention(tasks):
-    """Separate tasks into majority-month and out-of-month groups."""
     month_numbers = []
     for task in tasks:
         m = extract_month_number(task.get("name", ""))
@@ -137,11 +137,32 @@ def split_by_month_convention(tasks):
 
 
 # ---------------------------------------------------------------------------
-# Status classification
+# Task processing
 # ---------------------------------------------------------------------------
 
+def process_tasks(raw_tasks, now_cot):
+    """Extract per-task data from raw ClickUp task objects."""
+    processed = []
+    for t in raw_tasks:
+        assignees = t.get("assignees") or []
+        assignee = assignees[0].get("username", "Unassigned") if assignees else "Unassigned"
+        due_ms = t.get("due_date")
+        due_dt = datetime.fromtimestamp(int(due_ms) / 1000, tz=COT) if due_ms else None
+        days_until = (due_dt.date() - now_cot.date()).days if due_dt else None
+
+        processed.append({
+            "name": t.get("name", "Untitled"),
+            "status": t.get("status", {}).get("status", "unknown").lower(),
+            "assignee": assignee,
+            "due_date": due_dt,
+            "days_until_due": days_until,
+        })
+    # Sort: overdue first, then by due date ascending, no-date last
+    processed.sort(key=lambda x: (x["days_until_due"] is None, x["days_until_due"] or 999))
+    return processed
+
+
 def classify_tasks(tasks, done_statuses, in_progress_statuses):
-    """Classify tasks into done, in_progress, remaining. Return counts and status breakdown."""
     done = 0
     in_progress = 0
     remaining = 0
@@ -150,7 +171,6 @@ def classify_tasks(tasks, done_statuses, in_progress_statuses):
     for task in tasks:
         status = task.get("status", {}).get("status", "").lower()
         status_counts[status] += 1
-
         if status in done_statuses:
             done += 1
         elif status in in_progress_statuses:
@@ -168,7 +188,6 @@ def classify_tasks(tasks, done_statuses, in_progress_statuses):
 
 
 def compute_health(done, total, day_of_month, days_in_month):
-    """Green/yellow/red based on pace."""
     if total == 0:
         return "green"
     expected_pace = (day_of_month / days_in_month) * total
@@ -183,15 +202,76 @@ def compute_health(done, total, day_of_month, days_in_month):
 
 
 # ---------------------------------------------------------------------------
+# New features: fire alerts, AM scoreboard, projected completion
+# ---------------------------------------------------------------------------
+
+def build_fire_alerts(client_data):
+    """Find campaigns due within FIRE_ALERT_DAYS that aren't near-done."""
+    alerts = []
+    for client_name, data in client_data.items():
+        for task in data.get("tasks", []):
+            days = task.get("days_until_due")
+            if days is not None and days <= FIRE_ALERT_DAYS and task["status"] not in SAFE_STATUSES:
+                alerts.append({
+                    "client": client_name,
+                    "name": task["name"],
+                    "status": task["status"],
+                    "assignee": task["assignee"],
+                    "days": days,
+                })
+    alerts.sort(key=lambda a: a["days"])
+    return alerts
+
+
+def build_am_scoreboard(client_data, done_statuses):
+    """Aggregate campaigns by assignee across all clients."""
+    am = {}
+    for data in client_data.values():
+        for task in data.get("tasks", []):
+            name = task["assignee"]
+            if name not in am:
+                am[name] = {"total": 0, "done": 0}
+            am[name]["total"] += 1
+            if task["status"] in done_statuses:
+                am[name]["done"] += 1
+
+    board = []
+    for name, c in am.items():
+        pct = round(c["done"] / c["total"] * 100) if c["total"] else 0
+        board.append({"name": name, "total": c["total"], "done": c["done"], "pct": pct})
+    board.sort(key=lambda x: x["pct"], reverse=True)
+    return board
+
+
+def compute_projected_completion(done, total, now_cot, days_in_month):
+    """Velocity-based projected finish date."""
+    day = now_cot.day
+    if done == 0 or day == 0 or total == 0:
+        return {"label": "No velocity yet", "late": False}
+    if done >= total:
+        return {"label": "Complete", "late": False}
+
+    velocity = done / day
+    remaining = total - done
+    days_needed = remaining / velocity
+    projected = now_cot.date() + timedelta(days=int(days_needed + 0.5))
+    month_end = now_cot.date().replace(day=days_in_month)
+    diff = (projected - month_end).days
+
+    if diff <= 0:
+        return {"label": f"On pace for {projected.strftime('%b %d')}", "late": False}
+    return {"label": f"{projected.strftime('%b %d')} ({diff}d late)", "late": True}
+
+
+# ---------------------------------------------------------------------------
 # HTML generation
 # ---------------------------------------------------------------------------
 
-def _html_escape(s):
+def _esc(s):
     return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
 
 
-def generate_html(client_data, now_cot):
-    """Read template and fill placeholders."""
+def generate_html(client_data, now_cot, done_statuses):
     template = (SCRIPT_DIR / "template.html").read_text(encoding="utf-8")
 
     month_year = now_cot.strftime("%B %Y")
@@ -199,16 +279,43 @@ def generate_html(client_data, now_cot):
     days_in_month = calendar.monthrange(now_cot.year, now_cot.month)[1]
     last_updated = now_cot.strftime("%b %d, %Y at %I:%M %p COT")
 
-    # Totals (only current-month tasks)
     total_done = sum(c["done"] for c in client_data.values())
     total_wip = sum(c["in_progress"] for c in client_data.values())
     total_remaining = sum(c["remaining"] for c in client_data.values())
     total_all = sum(c["total"] for c in client_data.values())
     overall_pct = round(total_done / total_all * 100) if total_all else 0
-
-    # Ring offset: circumference = 2*pi*90 = 565.48, offset = 565 * (1 - pct/100)
     ring_offset = round(565 * (1 - overall_pct / 100)) if overall_pct else 565
 
+    # --- Fire Alerts ---
+    alerts = build_fire_alerts(client_data)
+    fire_html = ""
+    if alerts:
+        rows = ""
+        for a in alerts:
+            s_color = STATUS_COLORS.get(a["status"], "rgba(255,255,255,0.1)")
+            if a["days"] < 0:
+                day_label = f'{abs(a["days"])}d overdue'
+                day_cls = "fire-overdue"
+            elif a["days"] == 0:
+                day_label = "Due today"
+                day_cls = "fire-overdue"
+            else:
+                day_label = f'{a["days"]}d left'
+                day_cls = "fire-soon"
+            rows += f"""<div class="fire-row">
+        <span class="fire-client">{a['client']}</span>
+        <span class="fire-name">{_esc(a['name'])}</span>
+        <span class="fire-pill" style="background:{s_color}">{a['status']}</span>
+        <span class="fire-am">@{a['assignee']}</span>
+        <span class="fire-days {day_cls}">{day_label}</span>
+      </div>"""
+        fire_html = f"""
+  <div class="fire-section anim" style="animation-delay:0.12s">
+    <div class="sec-title"><span class="fire-icon">&#9888;</span> Urgent — Due Within {FIRE_ALERT_DAYS} Days <span class="ln"></span></div>
+    <div class="fire-box">{rows}</div>
+  </div>"""
+
+    # --- Summary Stats ---
     summary_html = f"""
     <div class="s-stat"><div class="s-num" data-count="{total_done}">{total_done}</div><div class="s-label">Scheduled</div></div>
     <div class="s-stat"><div class="s-num" data-count="{total_wip}">{total_wip}</div><div class="s-label">In Progress</div></div>
@@ -216,9 +323,27 @@ def generate_html(client_data, now_cot):
     <div class="s-stat"><div class="s-num" data-count="{total_all}">{total_all}</div><div class="s-label">Total</div></div>
     """
 
-    # Client cards — blue/white/black only
-    health_class_map = {"green": "b-on", "yellow": "b-at", "red": "b-behind"}
-    health_label_map = {"green": "On Track", "yellow": "At Risk", "red": "Behind"}
+    # --- AM Scoreboard ---
+    scoreboard = build_am_scoreboard(client_data, done_statuses)
+    am_html = ""
+    if scoreboard:
+        am_cards = ""
+        for am in scoreboard:
+            am_cards += f"""<div class="am-card">
+        <div class="am-name">@{_esc(am['name'])}</div>
+        <div class="am-nums"><strong>{am['done']}</strong> <span>/ {am['total']}</span></div>
+        <div class="am-bar-track"><div class="am-bar-fill" style="width:{am['pct']}%"></div></div>
+        <div class="am-pct" data-count="{am['pct']}">{am['pct']}%</div>
+      </div>"""
+        am_html = f"""
+  <div class="am-section anim" style="animation-delay:0.2s">
+    <div class="sec-title">Account Managers <span class="ln"></span></div>
+    <div class="am-grid">{am_cards}</div>
+  </div>"""
+
+    # --- Client Cards with drill-down + projected ---
+    health_cls = {"green": "b-on", "yellow": "b-at", "red": "b-behind"}
+    health_lbl = {"green": "On Track", "yellow": "At Risk", "red": "Behind"}
 
     cards_html = ""
     for i, (client_name, data) in enumerate(client_data.items()):
@@ -226,43 +351,59 @@ def generate_html(client_data, now_cot):
         done_pct = round(data["done"] / data["total"] * 100) if data["total"] else 0
         wip_pct = round(data["in_progress"] / data["total"] * 100) if data["total"] else 0
 
-        health_class = health_class_map[health]
-        health_label = health_label_map[health]
-
         month_label = f"M{data['majority_month']}" if data.get("majority_month") else ""
         month_tag = f'<span class="m-tag">{month_label}</span>' if month_label else ""
 
         oom_count = data.get("out_of_month_count", 0)
         oom_badge = f'<span class="b-oom">{oom_count} out-of-month</span>' if oom_count > 0 else ""
 
-        delay = 0.25 + i * 0.1
+        proj = data.get("projected", {})
+        proj_cls = "proj-late" if proj.get("late") else "proj-ok"
+        proj_html = f'<div class="c-proj {proj_cls}">{proj.get("label", "")}</div>'
+
+        # Drill-down task list
+        task_rows = ""
+        for t in data.get("tasks", []):
+            t_name = _esc(t["name"])
+            t_status = t["status"]
+            t_color = STATUS_COLORS.get(t_status, "rgba(255,255,255,0.08)")
+            t_am = t["assignee"]
+            d = t["days_until_due"]
+            if d is None:
+                due_label, due_cls = "No date", ""
+            elif d < 0:
+                due_label, due_cls = f"{abs(d)}d late", "drill-overdue"
+            elif d <= 5:
+                due_label, due_cls = f"{d}d", "drill-urgent"
+            else:
+                due_label, due_cls = f"{d}d", ""
+            task_rows += f'<div class="drill-row"><span class="drill-name">{t_name}</span><span class="drill-pill" style="background:{t_color}">{t_status}</span><span class="drill-am">@{t_am}</span><span class="drill-due {due_cls}">{due_label}</span></div>\n'
+
+        drill_html = f"""<details class="drill">
+        <summary class="drill-toggle">View all campaigns <span class="drill-cnt">{data['total']}</span></summary>
+        <div class="drill-list">{task_rows}</div>
+      </details>""" if data["total"] > 0 else ""
+
+        delay = 0.3 + i * 0.1
 
         cards_html += f"""
     <div class="card anim" style="animation-delay:{delay:.2f}s">
       <div class="c-head">
-        <div class="c-name">
-          <span class="c-dot"></span>
-          {client_name}
-          {month_tag}
-        </div>
-        <div class="c-badges">
-          {oom_badge}
-          <span class="badge {health_class}">{health_label}</span>
-        </div>
+        <div class="c-name"><span class="c-dot"></span>{client_name}{month_tag}</div>
+        <div class="c-badges">{oom_badge}<span class="badge {health_cls[health]}">{health_lbl[health]}</span></div>
       </div>
       <div class="big-num"><span data-count="{data['done']}">{data['done']}</span> <span class="of">/ {data['total']}</span></div>
-      <div class="prog-track">
-        <div class="prog-done" style="width:{done_pct}%"></div>
-        <div class="prog-wip" style="width:{wip_pct}%"></div>
-      </div>
+      <div class="prog-track"><div class="prog-done" style="width:{done_pct}%"></div><div class="prog-wip" style="width:{wip_pct}%"></div></div>
       <div class="c-stats">
         <div><strong>{data['done']}</strong> done</div>
         <div><strong>{data['in_progress']}</strong> in progress</div>
         <div><strong>{data['remaining']}</strong> remaining</div>
       </div>
+      {proj_html}
+      {drill_html}
     </div>"""
 
-    # Detail table rows
+    # --- Detail Table with Projected column ---
     dot_map = {"green": "h-good", "yellow": "h-warn", "red": "h-bad"}
     detail_html = ""
     for client_name, data in client_data.items():
@@ -270,6 +411,8 @@ def generate_html(client_data, now_cot):
         pct = round(data["done"] / data["total"] * 100) if data["total"] else 0
         dot_cls = dot_map[health]
         month_label = f"M{data['majority_month']}" if data.get("majority_month") else "-"
+        proj = data.get("projected", {})
+        proj_cls = "proj-late" if proj.get("late") else "proj-ok"
 
         detail_html += f"""
       <tr>
@@ -280,10 +423,11 @@ def generate_html(client_data, now_cot):
         <td>{data['remaining']}</td>
         <td>{data['total']}</td>
         <td class="pct">{pct}%</td>
+        <td class="{proj_cls}" style="font-size:0.8rem">{proj.get('label','')}</td>
         <td><span class="h-dot {dot_cls}"></span></td>
       </tr>"""
 
-    # Pipeline bars — blue intensity scale
+    # --- Pipeline ---
     all_statuses = set()
     for data in client_data.values():
         all_statuses.update(data["status_counts"].keys())
@@ -304,20 +448,18 @@ def generate_html(client_data, now_cot):
             s_color = STATUS_COLORS.get(status, "rgba(255,255,255,0.1)")
             label = str(count) if pct > 6 else ""
             segments += f'<div class="pipe-seg" style="width:{pct}%;background:{s_color}" title="{status}: {count}">{label}</div>'
-
         pipeline_html += f"""
     <div class="pipe-row">
       <div class="pipe-lbl"><span class="c-dot" style="display:inline-block"></span> {client_name}</div>
       <div class="pipe-bar">{segments}</div>
     </div>"""
 
-    # Legend
     legend_html = ""
     for status in sorted_statuses:
-        s_color = STATUS_COLORS.get(status, "#6b7280")
+        s_color = STATUS_COLORS.get(status, "rgba(255,255,255,0.1)")
         legend_html += f'<div class="leg-item"><span class="leg-sw" style="background:{s_color}"></span>{status.title()}</div>'
 
-    # Out-of-month section
+    # --- Out-of-month ---
     has_oom = any(d.get("out_of_month_count", 0) > 0 for d in client_data.values())
     oom_html = ""
     if has_oom:
@@ -326,46 +468,42 @@ def generate_html(client_data, now_cot):
             oom_tasks = data.get("out_of_month_tasks", [])
             if not oom_tasks:
                 continue
-            majority = data.get("majority_month", "?")
             task_list = ""
             for t in oom_tasks:
-                name = _html_escape(t["name"])
-                status = t.get("status", "unknown")
-                task_list += f'<div class="oom-t"><span>{name}</span><span class="oom-ts">{status}</span></div>\n'
-
+                task_list += f'<div class="oom-t"><span>{_esc(t["name"])}</span><span class="oom-ts">{t.get("status","unknown")}</span></div>\n'
             oom_items += f"""
       <details class="oom-cl">
-        <summary>
-          <span class="c-dot" style="display:inline-block"></span>
-          {client_name}
-          <span class="oom-cnt">{len(oom_tasks)} task{"s" if len(oom_tasks) != 1 else ""}</span>
-        </summary>
+        <summary><span class="c-dot" style="display:inline-block"></span>{client_name}<span class="oom-cnt">{len(oom_tasks)} task{"s" if len(oom_tasks)!=1 else ""}</span></summary>
         <div class="oom-tasks">{task_list}</div>
       </details>"""
-
         oom_html = f"""
   <div class="oom-section anim" style="animation-delay:0.9s">
     <div class="sec-title">Out-of-Month Campaigns <span class="ln"></span></div>
     <div class="oom-box">
-      <div class="oom-desc">These campaigns don't match the current month naming convention. They may be leftover from a previous month or mislabeled. Review needed.</div>
+      <div class="oom-desc">These campaigns don't match the current month naming convention. Review needed.</div>
       {oom_items}
     </div>
   </div>"""
 
-    # Fill template
+    # --- Fill template ---
     html = template
-    html = html.replace("{{MONTH_YEAR}}", month_year)
-    html = html.replace("{{DAY_OF_MONTH}}", str(day_of_month))
-    html = html.replace("{{DAYS_IN_MONTH}}", str(days_in_month))
-    html = html.replace("{{LAST_UPDATED}}", last_updated)
-    html = html.replace("{{OVERALL_PCT}}", str(overall_pct))
-    html = html.replace("{{RING_OFFSET}}", str(ring_offset))
-    html = html.replace("{{SUMMARY_STATS}}", summary_html)
-    html = html.replace("{{CLIENT_CARDS}}", cards_html)
-    html = html.replace("{{DETAIL_ROWS}}", detail_html)
-    html = html.replace("{{PIPELINE_BARS}}", pipeline_html)
-    html = html.replace("{{PIPELINE_LEGEND}}", legend_html)
-    html = html.replace("{{OUT_OF_MONTH_SECTION}}", oom_html)
+    for k, v in {
+        "{{MONTH_YEAR}}": month_year,
+        "{{DAY_OF_MONTH}}": str(day_of_month),
+        "{{DAYS_IN_MONTH}}": str(days_in_month),
+        "{{LAST_UPDATED}}": last_updated,
+        "{{OVERALL_PCT}}": str(overall_pct),
+        "{{RING_OFFSET}}": str(ring_offset),
+        "{{FIRE_ALERTS_SECTION}}": fire_html,
+        "{{SUMMARY_STATS}}": summary_html,
+        "{{AM_SCOREBOARD_SECTION}}": am_html,
+        "{{CLIENT_CARDS}}": cards_html,
+        "{{DETAIL_ROWS}}": detail_html,
+        "{{PIPELINE_BARS}}": pipeline_html,
+        "{{PIPELINE_LEGEND}}": legend_html,
+        "{{OUT_OF_MONTH_SECTION}}": oom_html,
+    }.items():
+        html = html.replace(k, v)
 
     return html
 
@@ -375,7 +513,6 @@ def generate_html(client_data, now_cot):
 # ---------------------------------------------------------------------------
 
 def post_slack_summary(client_data, now_cot, dashboard_url):
-    """Post a summary to Slack with per-client one-liners."""
     token = os.environ.get("SLACK_BOT_TOKEN")
     if not token:
         print("[SLACK] No SLACK_BOT_TOKEN set, skipping notification")
@@ -399,13 +536,16 @@ def post_slack_summary(client_data, now_cot, dashboard_url):
     lines = [f"*Campaign Dashboard — {month_year}*"]
     lines.append(f"Overall: *{total_done}/{total_all}* campaigns scheduled\n")
 
+    alerts = build_fire_alerts(client_data)
+    if alerts:
+        lines.append(f":rotating_light: *{len(alerts)} campaigns due within {FIRE_ALERT_DAYS} days and not ready*\n")
+
     health_emoji = {"green": ":large_green_circle:", "yellow": ":large_yellow_circle:", "red": ":red_circle:"}
     for name, data in client_data.items():
         emoji = health_emoji[data["health"]]
         month_label = f" (M{data['majority_month']})" if data.get("majority_month") else ""
-        oom = data.get("out_of_month_count", 0)
-        oom_note = f" | {oom} out-of-month" if oom > 0 else ""
-        lines.append(f"{emoji} *{name}*{month_label}: {data['done']}/{data['total']} scheduled, {data['in_progress']} in progress{oom_note}")
+        proj = data.get("projected", {}).get("label", "")
+        lines.append(f"{emoji} *{name}*{month_label}: {data['done']}/{data['total']} scheduled | {proj}")
 
     lines.append(f"\n<{dashboard_url}|View full dashboard>")
 
@@ -448,11 +588,10 @@ def main():
         color = client_config["color"]
 
         print(f"\n[FETCH] {client_name} (list {list_id})...")
-        tasks = fetch_tasks_for_month(list_id, headers, year, month)
-        print(f"  Found {len(tasks)} tasks with due dates in {now_cot.strftime('%B')}")
+        raw_tasks = fetch_tasks_for_month(list_id, headers, year, month)
+        print(f"  Found {len(raw_tasks)} tasks with due dates in {now_cot.strftime('%B')}")
 
-        # Split by naming convention
-        current_tasks, oom_tasks, majority_month = split_by_month_convention(tasks)
+        current_tasks, oom_tasks, majority_month = split_by_month_convention(raw_tasks)
         if majority_month is not None:
             print(f"  Majority month: M{majority_month} ({len(current_tasks)} tasks)")
             if oom_tasks:
@@ -460,9 +599,10 @@ def main():
         else:
             print(f"  No month convention detected, counting all tasks")
 
-        # Classify only current-month tasks
         result = classify_tasks(current_tasks, done_statuses, in_progress_statuses)
         health = compute_health(result["done"], result["total"], day_of_month, days_in_month)
+        processed = process_tasks(current_tasks, now_cot)
+        projected = compute_projected_completion(result["done"], result["total"], now_cot, days_in_month)
 
         client_data[client_name] = {
             **result,
@@ -471,24 +611,21 @@ def main():
             "majority_month": majority_month,
             "out_of_month_count": len(oom_tasks),
             "out_of_month_tasks": [
-                {
-                    "name": t.get("name", "Untitled"),
-                    "status": t.get("status", {}).get("status", "unknown"),
-                }
+                {"name": t.get("name", "Untitled"), "status": t.get("status", {}).get("status", "unknown")}
                 for t in oom_tasks
             ],
+            "tasks": processed,
+            "projected": projected,
         }
 
-        print(f"  Done: {result['done']} | In Progress: {result['in_progress']} | Remaining: {result['remaining']} | Health: {health}")
+        print(f"  Done: {result['done']} | In Progress: {result['in_progress']} | Remaining: {result['remaining']} | Health: {health} | {projected['label']}")
 
-    # Generate HTML
-    html = generate_html(client_data, now_cot)
+    html = generate_html(client_data, now_cot, done_statuses)
     output_path = SCRIPT_DIR / "docs" / "index.html"
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(html, encoding="utf-8")
     print(f"\n[HTML] Written to {output_path}")
 
-    # Post Slack notification
     dashboard_url = "https://milton-collab.github.io/campaign-dashboard/"
     post_slack_summary(client_data, now_cot, dashboard_url)
 
