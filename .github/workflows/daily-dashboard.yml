@@ -2,8 +2,8 @@ name: Daily Campaign Dashboard
 
 on:
   schedule:
-    # Every day at 4:00 AM UTC = 11:00 PM Colombian Time (COT, UTC-5)
-    - cron: '0 4 * * *'
+    # Every day at 13:55 UTC = 7:55 AM CST (UTC-6) / 8:55 AM COT (UTC-5)
+    - cron: '55 13 * * *'
   workflow_dispatch:
     # Manual trigger for testing
 
